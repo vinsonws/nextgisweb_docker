@@ -1,0 +1,56 @@
+FROM nextgisbasebuild as build
+
+# if you need a proxy , exec "docker build  -t {image} . --network host"
+# or remove it.
+ENV http_proxy http://192.168.1.101:1080
+ENV https_proxy http://192.168.1.101:1080
+
+ENV DEBIAN_FRONTEND noninteractive
+ENV NEXTGISWEB_CONFIG /opt/nextgis/config/config.ini
+
+WORKDIR /opt/nextgis
+COPY config/config.ini /opt/nextgis/config/config.ini
+ENV VIRTUAL_ENV="/opt/nextgis/env"
+ENV PATH="/opt/nextgis/env/bin/:$PATH"
+ENV NODE_VERSION=v16.17.0
+ENV DISTRO=linux-x64
+
+RUN mkdir -p /opt/node \
+    && curl https://nodejs.org/dist/${NODE_VERSION}/node-${NODE_VERSION}-${DISTRO}.tar.xz | tar -xvJ -C /opt \
+    && mv  /opt/node-${NODE_VERSION}-${DISTRO}/* /opt/node/ && rm -rf /opt/node-${NODE_VERSION}-${DISTRO}
+
+RUN cd /opt/nextgis/package && git clone https://github.com/nextgis/nextgisweb.git \
+    && cd /opt/nextgis/package/nextgisweb \
+    && git checkout $(git tag -l '*.*.*' | tail -1) \
+    && cd /opt/nextgis/package \
+    && pip install --no-cache-dir -e nextgisweb/ \
+    && nextgisweb-i18n -p nextgisweb compile \
+    && cd /opt/nextgis/package \
+    && git clone https://github.com/nextgis/nextgisweb_mapserver.git \
+    && nextgisweb_mapserver/mapscript-to-env ../env/bin/python /usr/bin/python3 \
+    && pip install --no-cache-dir  -e nextgisweb_mapserver/ \
+    && cd /opt/nextgis/package \
+    && git clone https://github.com/nextgis/nextgisweb_basemap.git \
+    && pip install --no-cache-dir  -e nextgisweb_basemap/ \
+    && cd /opt/nextgis/package \
+    && git clone --recurse-submodules https://github.com/nextgis/nextgisweb_qgis.git \
+    && pip install --no-cache-dir  -e nextgisweb_qgis/qgis_headless \
+    && pip install --no-cache-dir  -e nextgisweb_qgis/ \
+    && nextgisweb jsrealm.install\
+    && yarn run build 
+
+
+FROM nextgisbaseruntime
+EXPOSE 8080
+
+ENV NEXTGISWEB_CONFIG /opt/nextgis/config/config.ini
+
+WORKDIR /opt/nextgis
+ENV VIRTUAL_ENV="/opt/nextgis/env"
+ENV PATH="/opt/node/bin:/opt/nextgis/env/bin/:$PATH"
+
+RUN rm -rf /opt/*
+COPY --from=build /opt/ /opt/
+
+CMD nextgisweb server
+
