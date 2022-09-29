@@ -6,7 +6,7 @@ services:
     environment:
       TZ: Asia/Shanghai
     volumes:
-      - ./data:/opt/nextgis/data
-      - ./config:/opt/nextgis/config
+      - ../../data:/opt/nextgis/data
+      - ../../config:/opt/nextgis/config
     ports:
       - "8000:8080"
