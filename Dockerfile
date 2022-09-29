@@ -59,6 +59,7 @@ RUN mkdir -p /opt/node \
     # && cd /opt/nextgis/package \
     # && git clone https://github.com/nextgis/nextgisweb_log.git \
     # && pip install --no-cache-dir  -e nextgisweb_log/ \
+    && pip insyall uwsgi \
     && cd /opt/nextgis/ \
     && nextgisweb-i18n -p nextgisweb compile \
     && nextgisweb-i18n -p nextgisweb_basemap compile \
@@ -97,5 +98,6 @@ ENV PATH="/opt/node/bin:/opt/nextgis/env/bin:$PATH"
 
 RUN rm -rf /opt/*
 COPY --from=build /opt/ /opt/
+COPY config/uwsgi.ini /opt/nextgis/uwsgi.ini
 
-CMD nextgisweb initialize_db && nextgisweb server
+CMD nextgisweb initialize_db &&  uwsgi --ini uwsgi.ini
