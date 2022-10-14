@@ -59,14 +59,14 @@ RUN mkdir -p /opt/node \
     # && cd /opt/nextgis/package \
     # && git clone https://github.com/nextgis/nextgisweb_log.git \
     # && pip install --no-cache-dir  -e nextgisweb_log/ \
-    && pip insyall uwsgi \
+    && pip install uwsgi \
     && cd /opt/nextgis/ \
     && nextgisweb-i18n -p nextgisweb compile \
     && nextgisweb-i18n -p nextgisweb_basemap compile \
     && nextgisweb-i18n -p nextgisweb_formbuilder compile \
     && nextgisweb-i18n -p nextgisweb_mapserver compile \
     && nextgisweb-i18n -p nextgisweb_qgis compile \
-    && nextgisweb jsrealm.install\
+    && nextgisweb jsrealm.install \
     && yarn run build 
 
 
