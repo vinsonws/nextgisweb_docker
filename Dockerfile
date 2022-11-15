@@ -2,8 +2,8 @@ FROM ubuntu:22.04 as build
 
 # if you need a proxy , exec "docker build  -t {image} . --network host"
 # or remove it.
-ENV http_proxy http://192.168.1.101:1080
-ENV https_proxy http://192.168.1.101:1080
+ENV http_proxy http://192.168.1.111:1080
+ENV https_proxy http://192.168.1.111:1080
 
 ENV DEBIAN_FRONTEND noninteractive
 ENV NEXTGISWEB_CONFIG /opt/nextgis/config/config.ini
@@ -75,12 +75,12 @@ EXPOSE 8080
 
 # if you need a proxy , exec "docker build  -t {image} . --network host"
 # or remove it.
-ENV http_proxy http://192.168.1.101:1080
-ENV https_proxy http://192.168.1.101:1080
+ENV http_proxy http://192.168.1.111:1080
+ENV https_proxy http://192.168.1.111:1080
 ENV DEBIAN_FRONTEND noninteractive
 ENV NEXTGISWEB_CONFIG /opt/nextgis/config/config.ini
 
-RUN apt update && apt install python3 python3-dev python3-virtualenv \
+RUN apt update && apt install python3 python3-dev python3-virtualenv curl \
     build-essential libssl-dev libgdal-dev libgeos-dev \
     gdal-bin libxml2-dev libxslt1-dev zlib1g-dev libjpeg-turbo8-dev \
     postgresql-client libmagic-dev python3-mapscript \
